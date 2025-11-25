@@ -106,13 +106,16 @@ export const HabitCard = ({
               cancelText="No"
               onConfirm={() => onDelete(id)}
             >
-              <Tooltip title="Delete habit">
-                <button
-                  className="text-gray-400 hover:text-red-500 transition-all duration-200"
+              <Tooltip title="Delete habit" >
+                <Button
+                  className="text-red-400 hover:text-black-500 transition-all duration-200"
+                  style={{background: "white"}}
+                  variant="outlined"
+                  size="large"
                   aria-label={`Delete ${name}`}
                 >
                   <DeleteOutlined />
-                </button>
+                </Button>
               </Tooltip>
             </Popconfirm>
           </div>
