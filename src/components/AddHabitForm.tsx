@@ -1,11 +1,47 @@
+// components/AddHabitForm.tsx
 import { useState } from "react";
+import { Input, Button, Space } from "antd";
+import { motion } from "framer-motion";
+import { PlusOutlined } from "@ant-design/icons";
 
-export default function AddHabitForm({ onAdd }: { onAdd: (title: string) => void }) {
+interface AddHabitFormProps {
+  onAdd: (title: string) => void;
+}
+
+export default function AddHabitForm({ onAdd }: AddHabitFormProps) {
   const [title, setTitle] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    onAdd(title.trim());
+    setTitle("");
+  };
+
   return (
-    <form onSubmit={e => { e.preventDefault(); if (title) { onAdd(title); setTitle(""); } }}>
-      <input className="border p-2 rounded mr-2" placeholder="New habit..." value={title} onChange={e => setTitle(e.target.value)} />
-      <button className="bg-blue-500 text-white px-3 py-2 rounded">Add</button>
-    </form>
+    <motion.form
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Space.Compact style={{ width: "100%" }}>
+        <Input
+          size="large"
+          placeholder="Add a new habit..."
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          allowClear
+        />
+        <Button
+          type="primary"
+          size="large"
+          icon={<PlusOutlined />}
+          htmlType="submit"
+        >
+          Add
+        </Button>
+      </Space.Compact>
+    </motion.form>
   );
 }
