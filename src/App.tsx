@@ -7,6 +7,7 @@ import { AvatarBuilder } from "./components/AvatarBuilder";
 import { ProfilePage } from "./pages/ProfilePage";
 import { HabitsPage } from "./pages/HabitsPage";
 import { HabitsContainer } from "./pages/HabitContainer";
+import { AvatarBuilderUI } from "./pages/AvatarBuilderUI";
 // Import other page components as you create them
 // import { DailiesPage } from "./pages/DailiesPage";
 // import { TodosPage } from "./pages/TodosPage";
@@ -25,7 +26,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/habits" element={<HabitsContainer />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/avatar" element={<AvatarBuilder />} />
+            <Route path="/avatar" element={<AvatarBuilderUI />} />
             
             {/* Uncomment and implement these routes as you create the components */}
             {/* <Route path="/dailies" element={<DailiesPage />} /> */}
