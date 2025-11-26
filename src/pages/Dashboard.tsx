@@ -146,7 +146,8 @@ export const Dashboard = () => {
                     </div>
                     <Progress
                       percent={70}
-                      status="exception"
+                      strokeColor="#ff4757"
+                      status="active"
                       size="small"
                       showInfo={false}
                     />
@@ -158,6 +159,7 @@ export const Dashboard = () => {
                     </div>
                     <Progress
                       percent={40}
+                      strokeColor="#287ff1ff"
                       status="active"
                       size="small"
                       showInfo={false}
@@ -168,7 +170,7 @@ export const Dashboard = () => {
                       <span>Level</span>
                       <span>20%</span>
                     </div>
-                    <Progress percent={20} size="small" showInfo={false} />
+                    <Progress percent={20} strokeColor="#2ed573" size="small" showInfo={false} />
                   </div>
                 </div>
               </div>
@@ -185,7 +187,7 @@ export const Dashboard = () => {
               height: "100%",
             }}
           >
-            <Title level={4}>Quick Stats</Title>
+            <Title level={4} style={{ marginBottom: 30 }}>Quick Stats</Title>
             <Row gutter={16}>
               <Col xs={24} sm={8}>
                 <Card

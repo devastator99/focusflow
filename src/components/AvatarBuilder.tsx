@@ -1,74 +1,100 @@
-import { Card, Row, Col, Select, Button, Slider, Avatar } from "antd";
+// src/pages/AvatarBuilderUI.tsx
+import { useState, useEffect } from "react";
+import { Tabs, Card, Row, Col, Button, message } from "antd";
 import { motion } from "framer-motion";
-import avatar from "../assets/avatar.png";
+import { AvatarRenderer } from "./gamification/AvatarBuilder";
+import { type AvatarConfig } from "../types/AvatarConfig";
 
-export const AvatarBuilder = () => {
+const parts = {
+  hair: ["hair1.png", "hair2.png", "hair3.png"],
+  eyes: ["eyes1.png", "eyes2.png"],
+  clothes: ["shirt1.png", "shirt2.png"],
+  body: ["body1.png", "body2.png"],
+  accessory: ["glasses1.png", "sword1.png"],
+  background: ["bg1.png", "bg2.png"],
+};
+
+export const AvatarBuilderUI = () => {
+  const [avatar, setAvatar] = useState<AvatarConfig>({
+    body: "body1.png",
+    hair: "hair1.png",
+    eyes: "eyes1.png",
+    clothes: "shirt1.png",
+    accessory: "glasses1.png",
+    background: "bg1.png",
+  });
+
+  // Load saved avatar on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("userAvatar");
+    if (saved) setAvatar(JSON.parse(saved));
+  }, []);
+
+  // Update selected part
+  const updatePart = (key: keyof AvatarConfig, value: string) => {
+    setAvatar((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // Save avatar to localStorage
+  const saveAvatar = () => {
+    localStorage.setItem("userAvatar", JSON.stringify(avatar));
+    message.success("Avatar saved successfully!");
+  };
+
   return (
-    <motion.div
-      className="p-6 max-w-5xl mx-auto"
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <h1 className="text-2xl font-bold mb-6">Customize Your Adventurer</h1>
+    <div className="p-6">
+      <h1 className="text-xl font-bold mb-4">Customize Your Avatar</h1>
 
-      <Row gutter={[16, 16]}>
-        {/* Left: Avatar Preview */}
-        <Col xs={24} md={10}>
-          <Card className="text-center" style={{ borderRadius: 12 }}>
-            <Avatar
-              src={avatar}
-              size={150}
-              style={{ border: "3px solid #bce200" }}
-            />
-            <p className="mt-3 text-gray-600">Live Preview</p>
-          </Card>
-        </Col>
+      <div className="flex gap-8">
+        {/* Preview */}
+        <div className="border rounded-lg p-4 shadow">
+          <AvatarRenderer config={avatar} />
+        </div>
 
-        {/* Right: Customization Options */}
-        <Col xs={24} md={14}>
-          <Card style={{ borderRadius: 12 }}>
-            <h3 className="font-semibold mb-4">Appearance</h3>
+        {/* Editor */}
+        <div className="flex-1">
+          <Tabs
+            items={(Object.keys(parts) as Array<keyof typeof parts>).map(
+              (category) => ({
+                key: category,
+                label: category.toUpperCase(),
+                children: (
+                  <Row gutter={[16, 16]}>
+                    {parts[category].map((img) => (
+                      <Col span={6} key={img}>
+                        <Card
+                          hoverable
+                          style={{
+                            border:
+                              avatar[category] === img
+                                ? "2px solid #1677ff"
+                                : undefined,
+                          }}
+                          onClick={() => updatePart(category, img)}
+                          cover={
+                            <motion.img
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3 }}
+                              src={`/avatar/${category}/${img}`}
+                              alt={category}
+                              className="p-2"
+                            />
+                          }
+                        ></Card>
+                      </Col>
+                    ))}
+                  </Row>
+                ),
+              })
+            )}
+          />
 
-            <div className="space-y-4">
-              <div>
-                <label className="font-medium">Body Type</label>
-                <Select className="w-full" defaultValue="normal">
-                  <Select.Option value="normal">Normal</Select.Option>
-                  <Select.Option value="slim">Slim</Select.Option>
-                  <Select.Option value="muscular">Muscular</Select.Option>
-                </Select>
-              </div>
-
-              <div>
-                <label className="font-medium">Skin Color</label>
-                <Slider defaultValue={30} max={100} />
-              </div>
-
-              <div>
-                <label className="font-medium">Hair Style</label>
-                <Select className="w-full" defaultValue="short">
-                  <Select.Option value="short">Short</Select.Option>
-                  <Select.Option value="long">Long</Select.Option>
-                  <Select.Option value="spiky">Spiky</Select.Option>
-                </Select>
-              </div>
-
-              <div>
-                <label className="font-medium">Outfit</label>
-                <Select className="w-full" defaultValue="robe">
-                  <Select.Option value="robe">Mage Robe</Select.Option>
-                  <Select.Option value="armor">Warrior Armor</Select.Option>
-                  <Select.Option value="leather">Ranger Leather</Select.Option>
-                </Select>
-              </div>
-            </div>
-
-            <Button type="primary" className="mt-6 w-full">
-              Save Avatar
-            </Button>
-          </Card>
-        </Col>
-      </Row>
-    </motion.div>
+          <Button type="primary" size="large" className="mt-4" onClick={saveAvatar}>
+            Save Avatar
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };

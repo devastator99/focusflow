@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { Dashboard } from "./pages/Dashboard";
 import { MainLayout } from "./layouts/MainLayout";
-import { AvatarBuilder } from "./components/AvatarBuilder";
 import { ProfilePage } from "./pages/ProfilePage";
 import { HabitsPage } from "./pages/HabitsPage";
 import { HabitsContainer } from "./pages/HabitContainer";
