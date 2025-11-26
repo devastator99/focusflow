@@ -21,6 +21,7 @@ import type { Habit } from "../types/Habit";
 
 const { Text } = Typography;
 
+
 interface HabitsPageProps {
   habits: Habit[];
   onAddHabit: (habit: { name: string; notes?: string; difficulty?: string }) => void;
@@ -28,7 +29,6 @@ interface HabitsPageProps {
   onDeleteHabit: (id: string) => void;
   loading?: boolean;
 }
-
 export const HabitsPage = ({
   habits,
   onAddHabit,

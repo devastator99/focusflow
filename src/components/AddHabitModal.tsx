@@ -97,6 +97,7 @@ export const AddHabitModal = ({
               form={form}
               layout="vertical"
               requiredMark={false}
+              style={{ background: "#ffffff" }}
               initialValues={{ difficulty: "medium" }}
             >
               <Form.Item
@@ -114,7 +115,10 @@ export const AddHabitModal = ({
                 />
               </Form.Item>
 
-              <Form.Item name="notes" label={<Text strong>Notes</Text>}>
+              <Form.Item 
+                name="notes" 
+                label={<Text strong>Notes</Text>}
+              >
                 <Input.TextArea
                   rows={3}
                   placeholder="Add notes, goals, or reminders..."

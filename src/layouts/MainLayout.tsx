@@ -7,10 +7,18 @@ import {
   CheckCircleOutlined,
   StarOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const { Sider, Content } = Layout;
 
 export const MainLayout = ({ children }: { children: React.ReactNode }) => {
+
+  const navigate = useNavigate();
+
+  const handleMenuClick = (info: any) => {
+    navigate(info.key); // key holds the route path
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -33,14 +41,15 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          onClick={handleMenuClick}
+          defaultSelectedKeys={["/"]}
           items={[
-            { key: "1", icon: <FireOutlined />, label: "Habits" },
-            { key: "2", icon: <CalendarOutlined />, label: "Dailies" },
-            { key: "3", icon: <CheckCircleOutlined />, label: "To-Dos" },
-            { key: "4", icon: <StarOutlined />, label: "Rewards" },
-            { key: "5", icon: <UserOutlined />, label: "Profile" },
-            { key: "6", icon: <AppstoreOutlined />, label: "Inventory" },
+            { key: "/", icon: <FireOutlined />, label: "Habits" },
+            { key: "/dailies", icon: <CalendarOutlined />, label: "Dailies" },
+            { key: "/todos", icon: <CheckCircleOutlined />, label: "To-Dos" },
+            { key: "/avatar", icon: <StarOutlined />, label: "Avatar Builder" },
+            { key: "/profile", icon: <UserOutlined />, label: "Profile" },
+            { key: "/inventory", icon: <AppstoreOutlined />, label: "Inventory" },
           ]}
         />
       </Sider>
