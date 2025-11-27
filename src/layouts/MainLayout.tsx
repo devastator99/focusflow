@@ -25,7 +25,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <Sider
         width={220}
         style={{
-          background: "#001529",
+          background: "#000000",
           position: "fixed",
           top: 0,
           left: 0,
@@ -45,8 +45,8 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
           defaultSelectedKeys={["/"]}
           items={[
             { key: "/", icon: <FireOutlined />, label: "Habits" },
-            { key: "/dailies", icon: <CalendarOutlined />, label: "Dailies" },
-            { key: "/todos", icon: <CheckCircleOutlined />, label: "To-Dos" },
+            { key: "/daily", icon: <CalendarOutlined />, label: "Dailies" },
+            { key: "/todo", icon: <CheckCircleOutlined />, label: "To-Dos" },
             { key: "/avatar", icon: <StarOutlined />, label: "Avatar Builder" },
             { key: "/profile", icon: <UserOutlined />, label: "Profile" },
             { key: "/inventory", icon: <AppstoreOutlined />, label: "Inventory" },
@@ -61,7 +61,7 @@ export const MainLayout = ({ children }: { children: React.ReactNode }) => {
             padding: "24px",
             minHeight: "100vh",
             width: "calc(100vw - 220px)",
-            background: "#f5f5f5",
+            background: "#353535ff",
           }}
         >
           <div className="max-w-[2000px] mx-auto">{children}</div>

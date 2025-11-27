@@ -5,10 +5,11 @@ import { Dashboard } from "./pages/Dashboard";
 import { MainLayout } from "./layouts/MainLayout";
 import { ProfilePage } from "./pages/ProfilePage";
 import { HabitsPage } from "./pages/HabitsPage";
+import { TodoDash } from "./pages/TodoDash";
 import { HabitsContainer } from "./pages/HabitContainer";
 import { AvatarBuilderUI } from "./pages/AvatarBuilderUI";
 // Import other page components as you create them
-// import { DailiesPage } from "./pages/DailiesPage";
+import { DashboardDailies} from "./pages/DashboardDailies";
 // import { TodosPage } from "./pages/TodosPage";
 // import { RewardsPage } from "./pages/RewardsPage";
 // import { InventoryPage } from "./pages/InventoryPage";
@@ -24,6 +25,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/habits" element={<HabitsContainer />} />
+            <Route path="/daily" element={<DashboardDailies />} />
+            <Route path="/todo" element={<TodoDash />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/avatar" element={<AvatarBuilderUI />} />
             

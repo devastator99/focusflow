@@ -19,92 +19,69 @@ import { motion } from "framer-motion";
 import type { Habit } from "../types/Habit";
 import avatarImage from "../assets/avatar.png";
 import { HabitsPage } from "./HabitsPage";
-
-// Dummy data
-const dummyHabits: Habit[] = [
-  {
-    _id: "1",
-    title: "Morning Run",
-    positive: true,
-    counter: 5,
-    difficulty: "medium",
-    negative: false,
-    datesCompleted: [
-      new Date(Date.now() - 86400000).toISOString().split("T")[0],
-      new Date(Date.now() - 2 * 86400000).toISOString().split("T")[0],
-      new Date().toISOString().split("T")[0],
-    ],
-  },
-  {
-    _id: "2",
-    title: "Read 10 pages",
-    positive: true,
-    counter: 3,
-    negative: false,
-    difficulty: "easy",
-    datesCompleted: [
-      new Date(Date.now() - 2 * 86400000).toISOString().split("T")[0],
-      new Date().toISOString().split("T")[0],
-    ],
-  },
-  {
-    _id: "3",
-    title: "No Sugar",
-    positive: false,
-    negative: true,
-    counter: 7,
-    difficulty: "hard",
-    datesCompleted: [new Date().toISOString().split("T")[0]],
-  },
-];
+import dummyDailies from "../dummy/dummyDailies";
+import DailiesPage from "./DailiesPage";
+import type { Daily } from "../types/Daily";
 
 const { Title } = Typography;
 
-export const Dashboard = () => {
-  const [habits, setHabits] = useState<Habit[]>(dummyHabits);
+type CreateDailyInput = {
+  title: string;
+  notes?: string;
+  difficulty: "easy" | "medium" | "hard";
+  days: Daily['days'];
+};
+
+export const DashboardDailies = () => {
+  const [dailies, setDailies] = useState<Daily[]>(dummyDailies);
   const [loading] = useState(false);
 
-  // --- CRUD operations ---
-  // In Dashboard.tsx, update the function:
-  const handleAddHabit = async (newHabit: {
-    name: string;
-    notes?: string;
-    difficulty?: string;
-  }) => {
-    const newHabitWithId: Habit = {
-      title: newHabit.name, // Map name to title if needed
-      difficulty:"meduim",
-      positive: false, // Default values
-      negative: false, // Default values
-      ...newHabit,
-      _id: Date.now().toString(),
-      counter: 0,
-      datesCompleted: [],
-      streak: 0,
-    };
-    setHabits((prev) => [...prev, newHabitWithId]);
-    message.success("Habit added successfully!");
+  const handleAddDaily = (
+    newDaily: CreateDailyInput
+  ) => {
+    setDailies((prev) => [
+      ...prev,
+      {
+        ...newDaily,
+        _id: Date.now().toString(),
+        completedToday: false,
+        streak: 0,
+        days: {
+          mon: false,
+          tue: false,
+          wed: false,
+          thu: false,
+          fri: false,
+          sat: false,
+          sun: false,
+        },
+      } as Daily,
+    ]);
   };
 
-  const handleUpdateHabit = async (id: string, updates: Partial<Habit>) => {
-    setHabits((prev) =>
-      prev.map((habit) => (habit._id === id ? { ...habit, ...updates } : habit))
+  const handleUpdateDaily = (
+    id: string,
+    updates: Partial<Omit<Daily, "_id">>
+  ) => {
+    setDailies((prev) =>
+      prev.map((d) => (d._id === id ? { ...d, ...updates } : d))
     );
-    message.success("Habit updated successfully!");
   };
 
-  const handleDeleteHabit = async (id: string) => {
-    setHabits((prev) => prev.filter((habit) => habit._id !== id));
-    message.success("Habit deleted successfully!");
+  const handleDeleteDaily = (id: string) => {
+    setDailies((prev) => prev.filter((d) => d._id !== id));
   };
+
 
   // --- Stats ---
-  const completedToday = habits.filter((h) =>
-    h.datesCompleted?.includes(new Date().toISOString().split("T")[0])
-  ).length;
-
+  const completedToday = dailies.filter((d) => d.completedToday).length;
   const bestStreak =
-    habits.length > 0 ? Math.max(...habits.map((h) => h.counter || 0)) : 0;
+    dailies.length > 0 ? Math.max(...dailies.map((d) => d.streak || 0)) : 0;
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
 
   return (
     <motion.div
@@ -170,7 +147,12 @@ export const Dashboard = () => {
                       <span>Level</span>
                       <span>20%</span>
                     </div>
-                    <Progress percent={20} strokeColor="#2ed573" size="small" showInfo={false} />
+                    <Progress
+                      percent={20}
+                      strokeColor="#2ed573"
+                      size="small"
+                      showInfo={false}
+                    />
                   </div>
                 </div>
               </div>
@@ -187,7 +169,9 @@ export const Dashboard = () => {
               height: "100%",
             }}
           >
-            <Title level={4} style={{ marginBottom: 30 }}>Quick Stats</Title>
+            <Title level={4} style={{ marginBottom: 30 }}>
+              Quick Stats
+            </Title>
             <Row gutter={16}>
               <Col xs={24} sm={8}>
                 <Card
@@ -246,13 +230,12 @@ export const Dashboard = () => {
         </Col>
       </Row>
 
-      {/* HABITS PAGE (child) */}
-      <HabitsPage
-        habits={habits}
-        onAddHabit={handleAddHabit}
-        onUpdateHabit={handleUpdateHabit}
-        onDeleteHabit={handleDeleteHabit}
-        loading={loading}
+      {/* Dailies PAGE (child) */}
+      <DailiesPage
+        dailies={dummyDailies}
+        onAddDaily={handleAddDaily}
+        onUpdateDaily={handleUpdateDaily}
+        onDeleteDaily={handleDeleteDaily}
       />
     </motion.div>
   );
