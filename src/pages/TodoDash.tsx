@@ -12,77 +12,66 @@ import {
 import {
   FireOutlined,
   TrophyOutlined,
-  ThunderboltOutlined,
   CheckCircleOutlined,
+  CheckSquareOutlined,
+  ClockCircleOutlined,
+  StarOutlined,
 } from "@ant-design/icons";
 import { motion } from "framer-motion";
-import type { Habit } from "../types/Habit";
+import type { Todo } from "../types/Todo";
 import avatarImage from "../assets/avatar.png";
-import { HabitsPage } from "./HabitsPage";
-import dummyDailies from "../dummy/dummyDailies";
-import DailiesPage from "./DailiesPage";
-import type { Daily } from "../types/Daily";
 import TodoPage from "../components/TodoPage";
+import { v4 as uuidv4 } from "uuid";
+import { dummyTodos } from "../dummy/dummyTodos";
 
 const { Title } = Typography;
 
-type CreateDailyInput = {
-  title: string;
-  notes?: string;
-  difficulty: "easy" | "medium" | "hard";
-  days: Daily['days'];
+type TodoStats = {
+  total: number;
+  completed: number;
+  pending: number;
+  completionRate: number;
 };
 
 export const TodoDash = () => {
-  const [dailies, setDailies] = useState<Daily[]>(dummyDailies);
+  const [todos, setTodos] = useState<Todo[]>(dummyTodos);
   const [loading] = useState(false);
 
-  const handleAddDaily = (
-    newDaily: CreateDailyInput
-  ) => {
-    setDailies((prev) => [
+  const handleAddTodo = (newTodo: Omit<Todo, "id" | "completed">) => {
+    setTodos((prev) => [
       ...prev,
-      {
-        ...newDaily,
-        _id: Date.now().toString(),
-        completedToday: false,
-        streak: 0,
-        days: {
-          mon: false,
-          tue: false,
-          wed: false,
-          thu: false,
-          fri: false,
-          sat: false,
-          sun: false,
-        },
-      } as Daily,
+      { ...newTodo, id: uuidv4(), completed: false },
     ]);
   };
 
-  const handleUpdateDaily = (
-    id: string,
-    updates: Partial<Omit<Daily, "_id">>
-  ) => {
-    setDailies((prev) =>
-      prev.map((d) => (d._id === id ? { ...d, ...updates } : d))
+  const handleCompleteTodo = (id: string) => {
+    setTodos((prev) =>
+      prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
     );
   };
 
-  const handleDeleteDaily = (id: string) => {
-    setDailies((prev) => prev.filter((d) => d._id !== id));
+  const handleDeleteTodo = (id: string) => {
+    setTodos((prev) => prev.filter((todo) => todo.id !== id));
   };
 
+  // Calculate stats
+  const completedCount = todos.filter((t) => t.completed).length;
+  const pendingCount = todos.length - completedCount;
+  const completionRate =
+    todos.length > 0 ? Math.round((completedCount / todos.length) * 100) : 0;
 
-  // --- Stats ---
-  const completedToday = dailies.filter((d) => d.completedToday).length;
-  const bestStreak =
-    dailies.length > 0 ? Math.max(...dailies.map((d) => d.streak || 0)) : 0;
+  const stats: TodoStats = {
+    total: todos.length,
+    completed: completedCount,
+    pending: pendingCount,
+    completionRate: completionRate,
+  };
 
   if (loading) {
     return <div>Loading...</div>;
   }
-
 
   return (
     <motion.div
@@ -173,7 +162,7 @@ export const TodoDash = () => {
             <Title level={4} style={{ marginBottom: 30 }}>
               Quick Stats
             </Title>
-            <Row gutter={16}>
+            <Row gutter={[16, 16]}>
               <Col xs={24} sm={8}>
                 <Card
                   className="text-center"
@@ -183,10 +172,10 @@ export const TodoDash = () => {
                   }}
                 >
                   <Statistic
-                    title="Coins"
-                    value={120}
+                    title="Total Tasks"
+                    value={stats.total}
                     prefix={
-                      <ThunderboltOutlined style={{ color: "#1677ff" }} />
+                      <CheckSquareOutlined style={{ color: "#1677ff" }} />
                     }
                   />
                 </Card>
@@ -201,8 +190,9 @@ export const TodoDash = () => {
                   }}
                 >
                   <Statistic
-                    title="Done Today"
-                    value={completedToday}
+                    title="Completed"
+                    value={stats.completed}
+                    suffix={`/ ${stats.total}`}
                     prefix={
                       <CheckCircleOutlined style={{ color: "#52c41a" }} />
                     }
@@ -215,14 +205,30 @@ export const TodoDash = () => {
                   className="text-center"
                   style={{
                     borderRadius: 10,
-                    background: "linear-gradient(135deg,#efdbff,#d3adf7)",
+                    background: "linear-gradient(135deg,#fff7e6,#ffe7ba)",
                   }}
                 >
                   <Statistic
-                    title="Best Streak"
-                    value={bestStreak}
-                    suffix="days"
-                    prefix={<TrophyOutlined style={{ color: "#722ed1" }} />}
+                    title="Completion"
+                    value={stats.completionRate}
+                    suffix="%"
+                    prefix={<StarOutlined style={{ color: "#fa8c16" }} />}
+                  />
+                </Card>
+              </Col>
+
+              <Col xs={24}>
+                <Card
+                  className="text-center"
+                  style={{
+                    borderRadius: 10,
+                    background: "linear-gradient(135deg,#f6ffed,#f4ffeb",
+                  }}
+                >
+                  <Progress
+                    percent={stats.completionRate}
+                    status={stats.completionRate === 100 ? "success" : "active"}
+                    format={() => `${stats.pending} tasks remaining`}
                   />
                 </Card>
               </Col>
@@ -231,8 +237,10 @@ export const TodoDash = () => {
         </Col>
       </Row>
 
-      {/* Dailies PAGE (child) */}
-      <TodoPage />
+      {/* Todo List */}
+      <div className="mt-8">
+        <TodoPage />
+      </div>
     </motion.div>
   );
 };
