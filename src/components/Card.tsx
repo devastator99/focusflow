@@ -13,7 +13,7 @@ interface AppCardProps {
 
 export const Card = ({
   children,
-  hoverable = true,
+  hoverable = false,
   bordered = false,
   className = "",
   onClick,
@@ -26,8 +26,7 @@ export const Card = ({
       style={{ borderRadius: 12 }}
     >
       <AntCard
-        hoverable={hoverable}
-        className={`rounded-xl shadow-md bg-gradient-to-br from-gray-900 to-gray-800 text-white ${className}`}
+        className={`rounded-xl shadow-md bg-gradient-to-br from-gray-90 to-gray-800 text-white ${className}`}
         onClick={onClick}
       >
         {children}
