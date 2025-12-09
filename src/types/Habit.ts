@@ -1,10 +1,12 @@
+export type Difficulty = 'easy' | 'medium' | 'hard';
+
 export interface Habit {
   _id?: string;
   title: string;
   notes?: string;
   positive: boolean;
   negative: boolean;
-  difficulty: string;
+  difficulty: Difficulty;
   counter: number;
   datesCompleted?: string[];
   streak?: number;

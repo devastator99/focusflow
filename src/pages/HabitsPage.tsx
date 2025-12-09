@@ -21,10 +21,11 @@ import type { Habit } from "../types/Habit";
 
 const { Text } = Typography;
 
-
 interface HabitsPageProps {
   habits: Habit[];
-  onAddHabit: (habit: { name: string; notes?: string; difficulty?: string }) => void;
+  onAddHabit: (
+    habit: Omit<Habit, "_id" | "id" | "createdAt" | "updatedAt">
+  ) => void;
   onUpdateHabit: (id: string, updates: Partial<Habit>) => void;
   onDeleteHabit: (id: string) => void;
   loading?: boolean;
@@ -66,7 +67,9 @@ export const HabitsPage = ({
     >
       <AnimatePresence mode="wait">
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading habits...</div>
+          <div className="text-center py-12 text-gray-500">
+            Loading habits...
+          </div>
         ) : habits.length === 0 ? (
           <Empty
             description={
@@ -108,7 +111,7 @@ export const HabitsPage = ({
                   id={habit._id!}
                   name={habit.title}
                   notes={habit.notes}
-                  difficulty={ "medium"}
+                  difficulty={"medium"}
                   counter={habit.counter || 0}
                   strength={(habit.counter || 0) > 10 ? "strong" : "weak"}
                   onIncrement={() =>
@@ -147,7 +150,16 @@ export const HabitsPage = ({
       <AddHabitModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={onAddHabit}
+        onSave={(values) => {
+          onAddHabit({
+            title: values.name, // Map 'name' to 'title'
+            notes: values.notes,
+            difficulty: values.difficulty,
+            positive: true, // Default value
+            negative: false, // Default value
+            counter: 0, // Default value
+          });
+        }}
       />
     </Card>
   );

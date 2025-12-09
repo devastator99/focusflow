@@ -1,6 +1,19 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { message } from "antd";
 import { HabitsPage } from "./HabitsPage";
 import type { Habit } from "../types/Habit";
+
+type Difficulty = "easy" | "medium" | "hard";
+// Import Difficulty type from Habit
+type HabitInput = Omit<Habit, '_id' | 'id' | 'createdAt' | 'updatedAt'>;
+
+// Default values for new habits
+const DEFAULT_HABIT_VALUES = {
+  counter: 0,
+  positive: true,
+  negative: false,
+  difficulty: "medium" as const,
+};
 
 export const HabitsContainer = () => {
   const [habits, setHabits] = useState<Habit[]>([
@@ -9,49 +22,80 @@ export const HabitsContainer = () => {
       title: "Drink Water",
       notes: "Stay hydrated",
       counter: 5,
-      positive: true, // Added missing required property
-      negative: false, // Added missing required property
-      difficulty: "medium", // Added missing required property
+      positive: true,
+      negative: false,
+      difficulty: "medium",
+      createdAt: new Date().toISOString(),
     },
     {
       _id: "2",
       title: "Meditate",
       notes: "5 minutes meditation",
       counter: 12,
-      positive: true, // Added missing required property
-      negative: false, // Added missing required property
-      difficulty: "medium", // Added missing required property
+      positive: true,
+      negative: false,
+      difficulty: "medium",
+      createdAt: new Date().toISOString(),
     },
   ]);
 
-  const handleAddHabit = (habit: {
-    name: string;
-    notes?: string;
-    difficulty?: string;
-  }) => {
-    setHabits((prev) => [
-      ...prev,
-      {
-        _id: String(Date.now()),
+  const handleAddHabit = useCallback(async (habit: HabitInput) => {
+    try {
+      const newHabit: Habit = {
+        _id: Date.now().toString(),
         title: habit.name,
         notes: habit.notes,
-        difficulty: habit.difficulty || "medium",
         counter: 0,
-        positive: true, // Default to true for new habits
-        negative: false, // Default to false for new habits
-      },
-    ]);
-  };
+        positive: habit.positive ?? DEFAULT_HABIT_VALUES.positive,
+        negative: habit.negative ?? DEFAULT_HABIT_VALUES.negative,
+        difficulty: habit.difficulty ?? DEFAULT_HABIT_VALUES.difficulty,
+        createdAt: new Date().toISOString(),
+      };
 
-  const handleUpdateHabit = (id: string, updates: Partial<Habit>) => {
-    setHabits((prev) =>
-      prev.map((h) => (h._id === id ? { ...h, ...updates } : h))
-    );
-  };
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setHabits(prev => [...prev, newHabit]);
+      message.success('Habit added successfully!');
+    } catch (error) {
+      console.error('Error adding habit:', error);
+      message.error('Failed to add habit');
+    }
+  }, []);
 
-  const handleDeleteHabit = (id: string) => {
-    setHabits((prev) => prev.filter((h) => h._id !== id));
-  };
+  const handleUpdateHabit = useCallback(async (id: string, updates: Partial<Habit>) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      setHabits(prev =>
+        prev.map((h) => (h._id === id ? { ...h, ...updates, updatedAt: new Date().toISOString() } : h))
+      );
+      message.success('Habit updated successfully!');
+    } catch (error) {
+      console.error('Error updating habit:', error);
+      message.error('Failed to update habit');
+    }
+  }, []);
+
+  const handleDeleteHabit = useCallback(async (id: string) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      setHabits(prev => {
+        const newHabits = prev.filter((h) => h._id !== id);
+        if (newHabits.length === prev.length) {
+          throw new Error('Habit not found');
+        }
+        return newHabits;
+      });
+      message.success('Habit deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting habit:', error);
+      message.error('Failed to delete habit');
+    }
+  }, []);
 
   return (
     <HabitsPage
