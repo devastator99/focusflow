@@ -1,4 +1,4 @@
-// components/HabitCard.tsx
+// src/components/HabitCard.tsx
 import {
   Tag,
   Tooltip,
@@ -17,47 +17,33 @@ import {
 } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import { Card } from "./Card";
+import { DIFFICULTY_LEVELS } from "../constants/habits";
+import React from "react";
 
 const { Text } = Typography;
 
 interface HabitCardProps {
   id: string;
-  name: string;
-  notes?: string;
-  strength: "weak" | "strong";
-  difficulty?: "easy" | "medium" | "hard";
-  counter?: number;
+  habit: {
+    name: string;
+    notes?: string;
+    difficulty?: "easy" | "medium" | "hard";
+    counter?: number;
+    strength?: "weak" | "strong";
+  };
   onDelete: (id: string) => void;
-  onIncrement?: (id: string) => void;
-  onDecrement?: (id: string) => void;
+  onIncrement: () => void;
+  onDecrement: () => void;
 }
 
-export const HabitCard = ({
+const HabitCard = ({
   id,
-  name,
-  notes,
-  strength,
-  difficulty = "medium",
-  counter = 0,
+  habit: { name, notes, difficulty = "medium", counter = 0, strength = "weak" },
   onDelete,
   onIncrement,
   onDecrement,
 }: HabitCardProps) => {
-  // --- Difficulty Color Map ---
-  const getDifficultyColor = () => {
-    switch (difficulty) {
-      case "easy":
-        return { color: "green", gradient: "from-green-500 to-green-300" };
-      case "medium":
-        return { color: "gold", gradient: "from-yellow-500 to-yellow-300" };
-      case "hard":
-        return { color: "red", gradient: "from-red-500 to-pink-400" };
-      default:
-        return { color: "blue", gradient: "from-blue-500 to-cyan-400" };
-    }
-  };
-
-  const { color, gradient } = getDifficultyColor();
+  const { color, gradient } = DIFFICULTY_LEVELS[difficulty] || DIFFICULTY_LEVELS.medium;
 
   return (
     <motion.div
@@ -65,13 +51,14 @@ export const HabitCard = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.4, type: "spring" }}
+      data-testid="habit-card"
     >
       <Card
         hoverable
         className={`transition-all duration-300 bg-gray-900/80 border border-gray-700 hover:border-${color}-400`}
+        aria-label={`Habit: ${name}`}
       >
         <div className="flex flex-col gap-2">
-          {/* --- Header Row --- */}
           <div className="flex justify-between items-start">
             <div className="space-y-1">
               <Space align="center" size="small">
@@ -99,30 +86,27 @@ export const HabitCard = ({
               </div>
             </div>
 
-            {/* --- Delete Button --- */}
             <Popconfirm
               title="Delete this habit?"
               okText="Yes"
               cancelText="No"
               onConfirm={() => onDelete(id)}
             >
-              <Tooltip title="Delete habit" >
+              <Tooltip title="Delete habit">
                 <Button
                   className="text-red-400 hover:text-black-500 transition-all duration-200"
-                  style={{background: "white"}}
+                  style={{ background: "white" }}
                   variant="outlined"
                   size="large"
                   aria-label={`Delete ${name}`}
-                >
-                  <DeleteOutlined />
-                </Button>
+                  icon={<DeleteOutlined />}
+                />
               </Tooltip>
             </Popconfirm>
           </div>
 
           <Divider style={{ margin: "8px 0", background: "#333" }} />
 
-          {/* --- Counter Buttons --- */}
           <div className="flex justify-between items-center mt-1">
             <div className="flex gap-2">
               <Tooltip title="Decrease counter">
@@ -131,9 +115,10 @@ export const HabitCard = ({
                   shape="circle"
                   size="small"
                   type="text"
-                  onClick={() => onDecrement?.(id)}
+                  onClick={onDecrement}
                   disabled={counter <= 0}
                   className="hover:text-red-400 text-gray-400 transition-all"
+                  aria-label={`Decrease counter for ${name}`}
                 />
               </Tooltip>
               <Tooltip title="Increase counter">
@@ -142,13 +127,13 @@ export const HabitCard = ({
                   shape="circle"
                   size="small"
                   type="text"
-                  onClick={() => onIncrement?.(id)}
+                  onClick={onIncrement}
                   className="hover:text-green-400 text-gray-400 transition-all"
+                  aria-label={`Increase counter for ${name}`}
                 />
               </Tooltip>
             </div>
 
-            {/* --- Progress Display --- */}
             <span
               className={`text-sm bg-gradient-to-r ${gradient} text-black font-semibold px-3 py-0.5 rounded-full`}
             >
@@ -160,3 +145,5 @@ export const HabitCard = ({
     </motion.div>
   );
 };
+
+export default React.memo(HabitCard);

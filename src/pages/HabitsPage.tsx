@@ -1,3 +1,4 @@
+// src/pages/HabitsPage.tsx
 import { useState } from "react";
 import {
   Button,
@@ -7,37 +8,81 @@ import {
   Tooltip,
   Typography,
   FloatButton,
+  message,
 } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FireOutlined,
-  PlusOutlined,
-  CheckOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
-import { HabitCard } from "../components/HabitCard";
+import { FireOutlined, PlusOutlined } from "@ant-design/icons";
+import HabitCard from "../components/HabitCard";
 import { AddHabitModal } from "../components/AddHabitModal";
+import type { Difficulty } from "../types/Habit";
 import type { Habit } from "../types/Habit";
+import type { HabitInput } from "../types/Habit";
+import { useHabits } from "../hooks/useHabits";
 
 const { Text } = Typography;
 
 interface HabitsPageProps {
   habits: Habit[];
-  onAddHabit: (
-    habit: Omit<Habit, "_id" | "id" | "createdAt" | "updatedAt">
-  ) => void;
-  onUpdateHabit: (id: string, updates: Partial<Habit>) => void;
-  onDeleteHabit: (id: string) => void;
-  loading?: boolean;
+  onAddHabit: (habit: HabitInput) => Promise<void>;
+  onUpdateHabit: (id: string, updates: Partial<Habit>) => Promise<void>;
+  onDeleteHabit: (id: string) => Promise<void>;
 }
+
 export const HabitsPage = ({
   habits,
   onAddHabit,
   onUpdateHabit,
   onDeleteHabit,
-  loading = false,
 }: HabitsPageProps) => {
+  const {
+    loading,
+    addHabit,
+    updateHabit,
+    deleteHabit,
+    getHabitStrength,
+  } = useHabits();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddHabit = async (values: {
+    name: string;
+    notes?: string;
+    difficulty?: Difficulty;
+    positive?: boolean;
+    negative?: boolean;
+  }) => {
+    try {
+      await addHabit({
+        title: values.name,
+        notes: values.notes,
+        difficulty: values.difficulty || "medium",
+        positive: values.positive ?? true, // Default to true if not provided
+        negative: values.negative ?? false, // Default to false if not provided
+      });
+      message.success("Habit added successfully!");
+      setIsModalOpen(false);
+    } catch (error) {
+      message.error("Failed to add habit. Please try again.");
+    }
+  };
+
+  const handleUpdateHabit = async (id: string, updates: any) => {
+    try {
+      await updateHabit(id, updates);
+    } catch (error) {
+      message.error("Failed to update habit. Please try again.");
+      throw error;
+    }
+  };
+
+  const handleDeleteHabit = async (id: string) => {
+    try {
+      await deleteHabit(id);
+      message.success("Habit deleted successfully!");
+    } catch (error) {
+      message.error("Failed to delete habit. Please try again.");
+    }
+  };
 
   return (
     <Card
@@ -55,6 +100,7 @@ export const HabitsPage = ({
             shape="round"
             icon={<PlusOutlined />}
             onClick={() => setIsModalOpen(true)}
+            aria-label="Add new habit"
           >
             New Habit
           </Button>
@@ -66,8 +112,8 @@ export const HabitsPage = ({
       }}
     >
       <AnimatePresence mode="wait">
-        {loading ? (
-          <div className="text-center py-12 text-gray-500">
+        {loading && habits.length === 0 ? (
+          <div className="text-center py-12 text-gray-500" aria-live="polite">
             Loading habits...
           </div>
         ) : habits.length === 0 ? (
@@ -81,6 +127,7 @@ export const HabitsPage = ({
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={() => setIsModalOpen(true)}
+                  aria-label="Add your first habit"
                 >
                   Add Habit
                 </Button>
@@ -99,67 +146,51 @@ export const HabitsPage = ({
             className="space-y-4"
           >
             {habits.map((habit) => (
-              <motion.div
+              <HabitCard
                 key={habit._id}
-                layout
-                initial={{ y: 15, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -15, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 100 }}
-              >
-                <HabitCard
-                  id={habit._id!}
-                  name={habit.title}
-                  notes={habit.notes}
-                  difficulty={"medium"}
-                  counter={habit.counter || 0}
-                  strength={(habit.counter || 0) > 10 ? "strong" : "weak"}
-                  onIncrement={() =>
-                    onUpdateHabit(habit._id!, {
-                      counter: (habit.counter || 0) + 1,
-                    })
-                  }
-                  onDecrement={() =>
-                    onUpdateHabit(habit._id!, {
-                      counter: Math.max((habit.counter || 0) - 1, 0),
-                    })
-                  }
-                  onDelete={() => onDeleteHabit(habit._id!)}
-                />
-              </motion.div>
+                id={habit._id!}
+                habit={{
+                  name: habit.title,
+                  notes: habit.notes,
+                  difficulty: habit.difficulty as "easy" | "medium" | "hard",
+                  counter: habit.counter || 0,
+                  strength: getHabitStrength(habit.counter || 0),
+                }}
+                onDelete={() => handleDeleteHabit(habit._id!)}
+                onIncrement={() =>
+                  handleUpdateHabit(habit._id!, {
+                    counter: (habit.counter || 0) + 1,
+                  })
+                }
+                onDecrement={() =>
+                  handleUpdateHabit(habit._id!, {
+                    counter: Math.max((habit.counter || 0) - 1, 0),
+                  })
+                }
+              />
             ))}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Floating add button (for mobile) */}
       <FloatButton
         shape="circle"
         type="primary"
         icon={<PlusOutlined />}
-        tooltip={<div>Add new habit</div>}
+        tooltip="Add new habit"
         onClick={() => setIsModalOpen(true)}
         style={{
           right: 40,
           bottom: 40,
           boxShadow: "0 4px 12px rgba(24,144,255,0.5)",
         }}
+        aria-label="Add new habit"
       />
 
-      {/* Modal */}
       <AddHabitModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={(values) => {
-          onAddHabit({
-            title: values.name, // Map 'name' to 'title'
-            notes: values.notes,
-            difficulty: values.difficulty,
-            positive: true, // Default value
-            negative: false, // Default value
-            counter: 0, // Default value
-          });
-        }}
+        onSave={handleAddHabit}
       />
     </Card>
   );
